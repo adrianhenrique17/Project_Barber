@@ -1,3 +1,9 @@
+- Setup do banco de dados
+- seeding do banco
+- Next js
+- tailwind
+- git hooks
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/pages/api-reference/create-next-app).
 
 ## Getting Started
