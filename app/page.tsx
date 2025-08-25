@@ -53,7 +53,7 @@ const Home = async () => {
 
           <Button className="gap-2" variant="secondary">
             <FootprintsIcon />
-            pezinho
+            Pezinho
           </Button>
         </div>
 
