@@ -1,15 +1,19 @@
 import { Card, CardContent } from "./ui/card"
 import Image from "next/image"
 import { Button } from "./ui/button"
-import { MenuIcon, HomeIcon, CalendarIcon } from "lucide-react"
+import { MenuIcon, HomeIcon, CalendarIcon, LogOutIcon } from "lucide-react"
 import {
   Sheet,
   SheetTrigger,
   SheetContent,
   SheetHeader,
   SheetTitle,
+  SheetClose,
 } from "./ui/sheet"
 import { quickSearchOptions } from "../_constants/search.ts"
+import { Avatar, AvatarImage } from "./ui/avatar.tsx"
+import Link from "next/link"
+
 const Header = () => {
   return (
     <Card>
@@ -22,24 +26,42 @@ const Header = () => {
               <MenuIcon />
             </Button>
           </SheetTrigger>
-          <SheetContent>
+          <SheetContent className="overflow-y-auto">
             <SheetHeader>
               <SheetTitle className="text-left">Menu</SheetTitle>
             </SheetHeader>
+            <div className="item-center flex gap-3 border-b border-solid py-5">
+              <Avatar>
+                <AvatarImage src="https://images.unsplash.com/photo-1629019725048-75f3fd5edd1c?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bHVmZnl8ZW58MHx8MHx8fDA%3D" />
+              </Avatar>
+              <div>
+                <p className="font-bold">Adrian Silva</p>
+                <p className="text-xs">Adrian@gmail.com</p>
+              </div>
+            </div>
+
             <div className="flex flex-col gap-2 border-b border-solid py-5">
-              <Button className="justify-start gap-2" variant="ghost">
-                <HomeIcon size={18} />
-                Inicio
-              </Button>
+              <SheetClose asChild>
+                <Button className="justify-start gap-2" variant="ghost" asChild>
+                  <Link href="/">
+                    <HomeIcon size={18} />
+                    Inicio
+                  </Link>
+                </Button>
+              </SheetClose>
+
               <Button className="justify-start gap-2" variant="ghost">
                 <CalendarIcon size={18} />
                 Agendamentos
               </Button>
             </div>
-
             <div className="flex flex-col gap-2 border-b border-solid py-5">
               {quickSearchOptions.map((option) => (
-                <Button className="justify-start gap-2" variant="ghost">
+                <Button
+                  className="justify-start gap-2"
+                  key={option.title}
+                  variant="ghost"
+                >
                   <Image
                     src={option.imageURL}
                     width={16}
@@ -49,6 +71,12 @@ const Header = () => {
                   {option.title}
                 </Button>
               ))}
+            </div>
+            <div className="flex flex-col gap-2 py-5">
+              <Button variant="ghost" className="justify-start gap-2">
+                <LogOutIcon size={18} />
+                Sair
+              </Button>
             </div>
           </SheetContent>
         </Sheet>
