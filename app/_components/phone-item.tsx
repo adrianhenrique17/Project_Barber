@@ -3,6 +3,7 @@
 import { SmartphoneIcon } from "lucide-react"
 import { Button } from "./ui/button"
 import { toast } from "sonner"
+import Footer from "../../app/_components/footer"
 
 interface PhoneItemProps {
   phone: string
