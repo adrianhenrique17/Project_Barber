@@ -1,3 +1,5 @@
+"use client"
+
 import { Button } from "./ui/button"
 import {
   MenuIcon,
@@ -27,7 +29,10 @@ import {
   DialogTitle,
 } from "./ui/dialog.tsx"
 import image from "next/image"
+import { signIn } from "next-auth/react"
 const SidebarSheet = () => {
+  const handleLoginWithGoogleClick = () => signIn("google")
+
   return (
     <SheetContent className="overflow-y-auto">
       <SheetHeader>
@@ -49,7 +54,11 @@ const SidebarSheet = () => {
                 Conecte-se usando sua conta google
               </DialogDescription>
             </DialogHeader>
-            <Button variant="outline" className="gap-1 font-bold">
+            <Button
+              variant="outline"
+              className="gap-1 font-bold"
+              onClick={handleLoginWithGoogleClick}
+            >
               <Image src="/google.svg" alt="Google" width={20} height={20} />
               Google
             </Button>
