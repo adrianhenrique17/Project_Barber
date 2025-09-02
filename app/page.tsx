@@ -12,6 +12,7 @@ import BarbershopItem from "./_components/barbershop-item"
 import { quickSearchOptions } from "./_constants/search.ts"
 import BookingItem from "./_components/booking-item"
 import Footer from "./_components/footer"
+import Search from "./_components/search"
 
 const Home = async () => {
   const barbershops = await db.barbershop.findMany({})
@@ -27,11 +28,9 @@ const Home = async () => {
       <div className="p-5">
         <h2 className="text-xl font-bold">Olá Adrian</h2>
         <p>21/08/2025</p>
-        <div className="mt-5 flex items-center gap-6">
-          <Input placeholder="Faça sua busca" />
-          <Button>
-            <SearchIcon />
-          </Button>
+
+        <div className="mt-6">
+          <Search />
         </div>
 
         <div className="mt-6 flex gap-3 overflow-scroll [&::-webkit-scrollbar]:hidden">
