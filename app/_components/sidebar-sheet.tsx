@@ -29,9 +29,11 @@ import {
   DialogTitle,
 } from "./ui/dialog.tsx"
 import image from "next/image"
-import { signIn } from "next-auth/react"
+import { signIn, useSession, signOut } from "next-auth/react"
 const SidebarSheet = () => {
+  const { data } = useSession()
   const handleLoginWithGoogleClick = () => signIn("google")
+  const handleLogOutClick = () => signOut()
 
   return (
     <SheetContent className="overflow-y-auto">
@@ -40,40 +42,50 @@ const SidebarSheet = () => {
       </SheetHeader>
 
       <div className="item-center flex justify-between gap-3 border-b border-solid py-5">
-        <h2 className="font-bold">Olá, faça seu login </h2>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button size="icon">
-              <LogInIcon />
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="w-[90%]">
-            <DialogHeader>
-              <DialogTitle>Faça Login na plataforma</DialogTitle>
-              <DialogDescription>
-                Conecte-se usando sua conta google
-              </DialogDescription>
-            </DialogHeader>
-            <Button
-              variant="outline"
-              className="gap-1 font-bold"
-              onClick={handleLoginWithGoogleClick}
-            >
-              <Image src="/google.svg" alt="Google" width={20} height={20} />
-              Google
-            </Button>
-          </DialogContent>
-        </Dialog>
+        {data?.user ? (
+          <div className="flex items-center gap-2">
+            <Avatar>
+              <AvatarImage src={data?.user?.image ?? ""} />
+            </Avatar>
 
-        {/*Avatar>
-          <AvatarImage src="https://images.unsplash.com/photo-1629019725048-75f3fd5edd1c?w=500&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8Mnx8bHVmZnl8ZW58MHx8MHx8fDA%3D" />
-        </Avatar
-     
-        <div>
-          <p className="font-bold">Adrian Silva</p>
-          <p className="text-xs">Adrian@gmail.com</p>
-        </div>
-          */}
+            <div>
+              <p className="font-bold">{data.user.name}</p>
+              <p className="text-xs">{data.user.email}</p>
+            </div>
+          </div>
+        ) : (
+          <>
+            <h2 className="font-bold">Olá, faça seu login </h2>
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button size="icon">
+                  <LogInIcon />
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="w-[90%]">
+                <DialogHeader>
+                  <DialogTitle>Faça Login na plataforma</DialogTitle>
+                  <DialogDescription>
+                    Conecte-se usando sua conta google
+                  </DialogDescription>
+                </DialogHeader>
+                <Button
+                  variant="outline"
+                  className="gap-1 font-bold"
+                  onClick={handleLoginWithGoogleClick}
+                >
+                  <Image
+                    src="/google.svg"
+                    alt="Google"
+                    width={20}
+                    height={20}
+                  />
+                  Google
+                </Button>
+              </DialogContent>
+            </Dialog>
+          </>
+        )}
       </div>
 
       <div className="flex flex-col gap-2 border-b border-solid py-5">
@@ -111,7 +123,11 @@ const SidebarSheet = () => {
       </div>
 
       <div className="flex flex-col gap-2 py-5">
-        <Button variant="ghost" className="justify-start gap-2">
+        <Button
+          variant="ghost"
+          className="justify-start gap-2"
+          onClick={handleLogOutClick}
+        >
           <LogOutIcon size={18} />
           Sair
         </Button>
