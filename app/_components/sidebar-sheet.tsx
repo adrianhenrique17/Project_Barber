@@ -30,6 +30,7 @@ import {
 } from "./ui/dialog.tsx"
 import image from "next/image"
 import { signIn, useSession, signOut } from "next-auth/react"
+import link from "next/link"
 const SidebarSheet = () => {
   const { data } = useSession()
   const handleLoginWithGoogleClick = () => signIn("google")
@@ -106,19 +107,19 @@ const SidebarSheet = () => {
 
       <div className="flex flex-col gap-2 border-b border-solid py-5">
         {quickSearchOptions.map((option) => (
-          <Button
-            className="justify-start gap-2"
-            key={option.title}
-            variant="ghost"
-          >
-            <Image
-              src={option.imageURL}
-              width={16}
-              height={16}
-              alt={option.title}
-            />
-            {option.title}
-          </Button>
+          <SheetClose key={option.title} asChild>
+            <Button className="justify-start gap-2" variant="ghost" asChild>
+              <Link href={`/barbershops?service=${option.title}`}>
+                <Image
+                  src={option.imageURL}
+                  width={16}
+                  height={16}
+                  alt={option.title}
+                />
+                {option.title}
+              </Link>
+            </Button>
+          </SheetClose>
         ))}
       </div>
 

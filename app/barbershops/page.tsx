@@ -5,7 +5,8 @@ import Search from "../_components/search"
 
 interface BarbershopsPageProps {
   searchParams: Promise<{
-    search?: string
+    title?: string
+    service?: string
   }>
 }
 
@@ -13,10 +14,28 @@ const BarbershopsPage = async ({ searchParams }: BarbershopsPageProps) => {
   const params = await searchParams
   const Barbershops = await db.barbershop.findMany({
     where: {
-      name: {
-        contains: params?.search,
-        mode: "insensitive",
-      },
+      OR: [
+        searchParams?.title
+          ? {
+              name: {
+                contains: searchParams?.title,
+                mode: "insensitive",
+              },
+            }
+          : {},
+        searchParams?.service
+          ? {
+              services: {
+                some: {
+                  name: {
+                    contains: searchParams?.service,
+                    mode: "insensitive",
+                  },
+                },
+              },
+            }
+          : {},
+      ],
     },
   })
 
@@ -28,7 +47,7 @@ const BarbershopsPage = async ({ searchParams }: BarbershopsPageProps) => {
       </div>
       <div className="px-5">
         <h2 className="mb-3 mt-6 text-xs font-bold uppercase text-gray-400">
-          Resultados para &quot;{params?.search}&quot;
+          Resultados para &quot;{params?.title || params?.service}&quot;
         </h2>
         <div className="grid grid-cols-2 gap-4">
           {Barbershops.map((barbershop) => (
