@@ -10,6 +10,7 @@ import {
   SheetHeader,
   SheetContent,
   SheetTitle,
+  SheetFooter,
 } from "./ui/sheet"
 import { Calendar } from "./ui/calendar"
 import { ptBR } from "date-fns/locale"
@@ -150,6 +151,9 @@ const ServiceItem = ({ service, barbershop }: ServiceItemProps) => {
                     </div>
                   </div>
                 )}
+                <SheetFooter className="mt-5 px-5">
+                  <Button>Confirmar</Button>
+                </SheetFooter>
               </SheetContent>
             </Sheet>
           </div>
