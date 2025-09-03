@@ -15,6 +15,10 @@ import {
 import { Calendar } from "./ui/calendar"
 import { ptBR } from "date-fns/locale"
 import { useState } from "react"
+import { createBooking } from "../_actions/create-booking"
+import { setHours, setMinutes } from "date-fns"
+import { useSession } from "next-auth/react"
+import { toast } from "sonner"
 
 export interface ServiceItemProps {
   service: BarbershopService
@@ -48,6 +52,7 @@ const TIME_LIST = [
 ]
 
 const ServiceItem = ({ service, barbershop }: ServiceItemProps) => {
+  const { data } = useSession()
   const [selectedDay, setSelectDay] = useState<Date | undefined>(null)
   const [selectTime, setSelectTime] = useState<string | undefined>(null)
 
@@ -57,6 +62,33 @@ const ServiceItem = ({ service, barbershop }: ServiceItemProps) => {
 
   const handleTimeSelect = (time: string) => {
     setSelectTime(time)
+  }
+
+  const handleHorizontalScroll = (e: React.WheelEvent<HTMLDivElement>) => {
+    if (e.shiftKey) {
+      e.preventDefault()
+      e.currentTarget.scrollLeft += e.deltaY
+    }
+  }
+
+  const handleCreateBooking = async () => {
+    try {
+      if (!selectedDay || !selectTime) return
+
+      const [hour, minute] = selectTime.split(":").map(Number)
+      const newDate = setMinutes(setHours(selectedDay, hour), minute)
+
+      await createBooking({
+        serviceId: service.id,
+        userId: (data?.user as any).id,
+        date: newDate,
+      })
+
+      toast.success("Reserva criada com sucesso!")
+    } catch (error) {
+      console.error(error)
+      toast.error("Erro ao criar reserva")
+    }
   }
 
   return (
@@ -105,7 +137,10 @@ const ServiceItem = ({ service, barbershop }: ServiceItemProps) => {
                 </div>
 
                 {selectedDay && (
-                  <div className="flex gap-3 overflow-x-auto border-b border-solid p-5 [&::-webkit-scrollbar]:hidden">
+                  <div
+                    onWheel={handleHorizontalScroll}
+                    className="flex gap-3 overflow-x-auto border-b border-solid p-5 [&::-webkit-scrollbar]:hidden"
+                  >
                     {TIME_LIST.map((time) => (
                       <Button
                         key={time}
@@ -119,7 +154,7 @@ const ServiceItem = ({ service, barbershop }: ServiceItemProps) => {
                   </div>
                 )}
 
-                {selectTime && (
+                {selectTime && selectedDay && (
                   <div className="p-5">
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
@@ -152,7 +187,12 @@ const ServiceItem = ({ service, barbershop }: ServiceItemProps) => {
                   </div>
                 )}
                 <SheetFooter className="mt-5 px-5">
-                  <Button>Confirmar</Button>
+                  <Button
+                    onClick={handleCreateBooking}
+                    disabled={!selectTime || !selectedDay}
+                  >
+                    Confirmar
+                  </Button>
                 </SheetFooter>
               </SheetContent>
             </Sheet>
