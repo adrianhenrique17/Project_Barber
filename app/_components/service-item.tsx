@@ -19,6 +19,8 @@ import { createBooking } from "../_actions/create-booking"
 import { setHours, setMinutes } from "date-fns"
 import { useSession } from "next-auth/react"
 import { toast } from "sonner"
+import { useEffect } from "react"
+import { getBookings } from "../_actions/get-bookings"
 
 export interface ServiceItemProps {
   service: BarbershopService
@@ -55,6 +57,21 @@ const ServiceItem = ({ service, barbershop }: ServiceItemProps) => {
   const { data } = useSession()
   const [selectedDay, setSelectDay] = useState<Date | undefined>(null)
   const [selectTime, setSelectTime] = useState<string | undefined>(null)
+
+  const [dayBookings, setDayBookings] = useState<Booking[]>([])
+
+  useEffect(() => {
+    if (!selectedDay) return
+
+    const fetch = async () => {
+      const bookings = await getBookings({
+        date: selectedDay,
+        serviceId: service.id,
+      })
+      setDayBookings(bookings)
+    }
+    fetch()
+  }, [selectedDay, service.id])
 
   const HandleDateSelect = (date: Date | undefined) => {
     setSelectDay(date)
