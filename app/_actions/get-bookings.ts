@@ -8,12 +8,13 @@ interface GetBookingsProps {
   date: Date
 }
 
-export const getBookings = async ({ date }: GetBookingsProps) => {
+export const getBookings = async ({ date, serviceId }: GetBookingsProps) => {
   return await db.booking.findMany({
     where: {
+      serviceId,
       date: {
-        lte: endOfDay(date),
         gte: startOfDay(date),
+        lte: endOfDay(date),
       },
     },
   })

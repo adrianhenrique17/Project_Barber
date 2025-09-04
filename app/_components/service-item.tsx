@@ -14,12 +14,11 @@ import {
 } from "./ui/sheet"
 import { Calendar } from "./ui/calendar"
 import { ptBR } from "date-fns/locale"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { createBooking } from "../_actions/create-booking"
-import { setHours, setMinutes, addDays } from "date-fns"
+import { setHours, setMinutes } from "date-fns"
 import { useSession } from "next-auth/react"
 import { toast } from "sonner"
-import { useEffect } from "react"
 import { getBookings } from "../_actions/get-bookings"
 import { Dialog, DialogContent } from "./ui/dialog"
 import SignInDialog from "./sign-in-dialog"
@@ -27,8 +26,16 @@ import SignInDialog from "./sign-in-dialog"
 export interface ServiceItemProps {
   service: BarbershopService
   barbershop: {
+    id: string
     name: string
   }
+}
+
+type Booking = {
+  id: string
+  date: Date
+  serviceId: string
+  barbershopId: string
 }
 
 const TIME_LIST = [
@@ -55,44 +62,42 @@ const TIME_LIST = [
   "18:00",
 ]
 
-const getTimeList = (bookings: bookings[]) => {
-  const timelist = TIME_LIST.filter((time) => {
-    const hour = Number(time.split(":")[0])
-    const minute = time.split(":")[1]
+const getTimeList = (bookings: Booking[]) => {
+  return TIME_LIST.filter((time) => {
+    const [hour, minute] = time.split(":").map(Number)
     if (
       bookings.some(
         (booking) =>
-          booking.date.getHours() == hour &&
-          booking.date.getMinutes() == minute,
+          booking.date.getHours() === hour &&
+          booking.date.getMinutes() === minute,
       )
     ) {
       return false
     }
     return true
   })
-  return timelist
 }
+
 const ServiceItem = ({ service, barbershop }: ServiceItemProps) => {
   const [signInDialogIsOpen, setSignInDialogIsOpen] = useState(false)
   const { data } = useSession()
   const [selectedDay, setSelectDay] = useState<Date | undefined>(null)
   const [selectTime, setSelectTime] = useState<string | undefined>(null)
-
   const [dayBookings, setDayBookings] = useState<Booking[]>([])
   const [bookingSheetIsOpen, setBookingSheetIsOpen] = useState(false)
 
   useEffect(() => {
     if (!selectedDay) return
-
     const fetch = async () => {
       const bookings = await getBookings({
         date: selectedDay,
         serviceId: service.id,
+        barbershopId: barbershop.id,
       })
       setDayBookings(bookings)
     }
     fetch()
-  }, [selectedDay, service.id])
+  }, [selectedDay, service.id, barbershop.id])
 
   const handleBookingClick = () => {
     if (data?.user) {
@@ -132,11 +137,11 @@ const ServiceItem = ({ service, barbershop }: ServiceItemProps) => {
 
       await createBooking({
         serviceId: service.id,
-        userId: (data?.user as any).id,
+        barbershopId: barbershop.id,
         date: newDate,
       })
-      handleBookingSheetOpenChange()
 
+      handleBookingSheetOpenChange()
       toast.success("Reserva criada com sucesso!")
     } catch (error) {
       console.error(error)
@@ -192,29 +197,6 @@ const ServiceItem = ({ service, barbershop }: ServiceItemProps) => {
                     onSelect={HandleDateSelect}
                     disabled={{ before: new Date() }}
                     className="w-full"
-                    styles={{
-                      head_cell: {
-                        width: "100%",
-                        textTransform: "capitalize",
-                      },
-                      cell: {
-                        width: "100%",
-                      },
-                      button: {
-                        width: "100%",
-                      },
-                      nav_button_previous: {
-                        width: "32px",
-                        height: "32px",
-                      },
-                      nav_button_next: {
-                        width: "32px",
-                        height: "32px",
-                      },
-                      caption: {
-                        textTransform: "capitalize",
-                      },
-                    }}
                   />
 
                   {selectedDay && (
