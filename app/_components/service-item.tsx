@@ -16,7 +16,7 @@ import { Calendar } from "./ui/calendar"
 import { ptBR } from "date-fns/locale"
 import { useState } from "react"
 import { createBooking } from "../_actions/create-booking"
-import { setHours, setMinutes } from "date-fns"
+import { setHours, setMinutes, addDays } from "date-fns"
 import { useSession } from "next-auth/react"
 import { toast } from "sonner"
 import { useEffect } from "react"
@@ -53,12 +53,30 @@ const TIME_LIST = [
   "18:00",
 ]
 
+const getTimeList = (bookings: bookings[]) => {
+  const timelist = TIME_LIST.filter((time) => {
+    const hour = Number(time.split(":")[0])
+    const minute = time.split(":")[1]
+    if (
+      bookings.some(
+        (booking) =>
+          booking.date.getHours() == hour &&
+          booking.date.getMinutes() == minute,
+      )
+    ) {
+      return false
+    }
+    return true
+  })
+  return timelist
+}
 const ServiceItem = ({ service, barbershop }: ServiceItemProps) => {
   const { data } = useSession()
   const [selectedDay, setSelectDay] = useState<Date | undefined>(null)
   const [selectTime, setSelectTime] = useState<string | undefined>(null)
 
   const [dayBookings, setDayBookings] = useState<Booking[]>([])
+  const [bookingSheetIsOpen, setBookingSheetIsOpen] = useState(false)
 
   useEffect(() => {
     if (!selectedDay) return
@@ -72,6 +90,13 @@ const ServiceItem = ({ service, barbershop }: ServiceItemProps) => {
     }
     fetch()
   }, [selectedDay, service.id])
+
+  const handleBookingSheetOpenChange = () => {
+    setSelectDay(undefined)
+    setSelectTime(undefined)
+    setDayBookings([])
+    setBookingSheetIsOpen(false)
+  }
 
   const HandleDateSelect = (date: Date | undefined) => {
     setSelectDay(date)
@@ -100,6 +125,7 @@ const ServiceItem = ({ service, barbershop }: ServiceItemProps) => {
         userId: (data?.user as any).id,
         date: newDate,
       })
+      handleBookingSheetOpenChange()
 
       toast.success("Reserva criada com sucesso!")
     } catch (error) {
@@ -131,34 +157,61 @@ const ServiceItem = ({ service, barbershop }: ServiceItemProps) => {
               }).format(Number(service.price))}
             </p>
 
-            <Sheet>
-              <SheetTrigger asChild>
-                <Button variant="secondary" size="sm">
-                  Reservar
-                </Button>
-              </SheetTrigger>
+            <Sheet
+              open={bookingSheetIsOpen}
+              onOpenChange={handleBookingSheetOpenChange}
+            >
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={() => setBookingSheetIsOpen(true)}
+              >
+                Reservar
+              </Button>
+
               <SheetContent className="px-0">
                 <SheetHeader>
                   <SheetTitle>Fazer Reserva</SheetTitle>
                 </SheetHeader>
 
-                <div className="border-b border-solid p-5">
-                  <Calendar
-                    mode="single"
-                    locale={ptBR}
-                    selected={selectedDay}
-                    onSelect={HandleDateSelect}
-                    fromDate={new Date()}
-                    className="w-full"
-                  />
-                </div>
+                <Calendar
+                  mode="single"
+                  locale={ptBR}
+                  selected={selectedDay}
+                  onSelect={HandleDateSelect}
+                  disabled={{ before: new Date() }}
+                  className="w-full"
+                  styles={{
+                    head_cell: {
+                      width: "100%",
+                      textTransform: "capitalize",
+                    },
+                    cell: {
+                      width: "100%",
+                    },
+                    button: {
+                      width: "100%",
+                    },
+                    nav_button_previous: {
+                      width: "32px",
+                      height: "32px",
+                    },
+                    nav_button_next: {
+                      width: "32px",
+                      height: "32px",
+                    },
+                    caption: {
+                      textTransform: "capitalize",
+                    },
+                  }}
+                />
 
                 {selectedDay && (
                   <div
                     onWheel={handleHorizontalScroll}
                     className="flex gap-3 overflow-x-auto border-b border-solid p-5 [&::-webkit-scrollbar]:hidden"
                   >
-                    {TIME_LIST.map((time) => (
+                    {getTimeList(dayBookings).map((time) => (
                       <Button
                         key={time}
                         variant={selectTime == time ? "default" : "outline"}
