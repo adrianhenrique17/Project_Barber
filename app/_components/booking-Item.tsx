@@ -2,8 +2,21 @@ import Image from "next/image"
 import { Card, CardContent } from "./ui/card"
 import { Badge } from "./ui/badge"
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar"
+import { Booking } from "@prisma/client"
 
-const BookingItem = () => {
+interface BookingItemProps {
+  booking: Prisma.bookingGetPayload<{
+    include: {
+      service: {
+        include: {
+          barbershop: true
+        }
+      }
+    }
+  }>
+}
+
+const BookingItem = ({ booking }: BookingItemProps) => {
   return (
     <>
       <h2 className="mb-3 mt-6 text-xs font-bold uppercase text-gray-400">
@@ -15,16 +28,16 @@ const BookingItem = () => {
           {/* Informações do serviço */}
           <div className="flex flex-col gap-2 py-5 pl-5">
             <Badge className="w-fit">Confirmado</Badge>
-            <h3 className="font-semibold">Corte de cabelo</h3>
+            <h3 className="font-semibold">{booking.service.name}</h3>
             <div className="flex items-center gap-2">
               <Avatar className="h-6 w-6">
                 <AvatarImage
-                  src="https://utfs.io/f/c97a2dc9-cf62-468b-a851-bfd2bdde775f-16p.png"
+                  src={booking.service.barbershop.imageUrl}
                   alt="Barbearia Adrian"
                 />
                 <AvatarFallback>BA</AvatarFallback>
               </Avatar>
-              <p className="text-sm">Barbearia Adrian</p>
+              <p className="text-sm">{booking.service.barbershop.name}</p>
             </div>
           </div>
 

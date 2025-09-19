@@ -32,6 +32,7 @@ import image from "next/image"
 import { signIn, useSession, signOut } from "next-auth/react"
 import link from "next/link"
 import SignInDialog from "./sign-in-dialog.tsx"
+import bookings from "../bookings/page.tsx"
 
 const SidebarSheet = () => {
   const { data } = useSession()
@@ -83,9 +84,11 @@ const SidebarSheet = () => {
           </Button>
         </SheetClose>
 
-        <Button className="justify-start gap-2" variant="ghost">
-          <CalendarIcon size={18} />
-          Agendamentos
+        <Button className="justify-start gap-2" variant="ghost" asChild>
+          <Link href="/bookings">
+            <CalendarIcon size={18} />
+            Agendamentos
+          </Link>
         </Button>
       </div>
 
