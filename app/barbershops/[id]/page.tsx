@@ -1,48 +1,45 @@
-import { db } from "@/app/_lib/prisma"
-import Image from "next/image"
-import { Button } from "@/app/_components/ui/button"
-import {
-  ChevronLeftIcon,
-  MenuIcon,
-  MapPinIcon,
-  StarIcon,
-  SmartphoneIcon,
-} from "lucide-react"
-import Link from "next/link"
+import PhoneItem from "@/app/_components/phone-item"
 import ServiceItem from "@/app/_components/service-item"
-import PhoneItem from "../../_components/phone-item"
-import { Sheet, SheetTrigger } from "../../../app/_components/ui/sheet"
-import SidebarSheet from "../../_components/sidebar-sheet"
+import SidebarSheet from "@/app/_components/sidebar-sheet"
+import { Button } from "@/app/_components/ui/button"
+import { Sheet, SheetTrigger } from "@/app/_components/ui/sheet"
+import { db } from "@/app/_lib/prisma"
+import { ChevronLeftIcon, MapPinIcon, MenuIcon, StarIcon } from "lucide-react"
+import Image from "next/image"
+import Link from "next/link"
+import { notFound } from "next/navigation"
 
 interface BarbershopPageProps {
-  params: { id: string }
+  params: Promise<{
+    id: string
+  }>
 }
 
 const BarbershopPage = async ({ params }: BarbershopPageProps) => {
-  const { id } = params
+  const { id } = await params
 
   const barbershop = await db.barbershop.findUnique({
-    where: {
-      id,
-    },
+    where: { id },
     include: {
       services: true,
     },
   })
 
   if (!barbershop) {
-    return <h1>Barbearia não encontrada</h1>
+    return notFound()
   }
 
   return (
     <div>
+      {/* IMAGEM */}
       <div className="relative h-[250px] w-full">
         <Image
-          src={barbershop.imageUrl}
           alt={barbershop.name}
+          src={barbershop?.imageUrl}
           fill
           className="object-cover"
         />
+
         <Button
           size="icon"
           variant="secondary"
@@ -68,46 +65,44 @@ const BarbershopPage = async ({ params }: BarbershopPageProps) => {
         </Sheet>
       </div>
 
+      {/* TÍTULO */}
       <div className="border-b border-solid p-5">
         <h1 className="mb-3 text-xl font-bold">{barbershop.name}</h1>
-        <div className="mb-2 flex items-center gap-1">
+        <div className="mb-2 flex items-center gap-2">
           <MapPinIcon className="text-primary" size={18} />
-          <p className="text-sm">{barbershop.address}</p>
+          <p className="text-sm">{barbershop?.address}</p>
         </div>
 
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-2">
           <StarIcon className="fill-primary text-primary" size={18} />
           <p className="text-sm">5,0 (499 avaliações)</p>
         </div>
       </div>
 
-      <div>
-        <div className="space-y-3 border-b border-solid p-5">
-          <h2 className="text-xs font-bold uppercase text-gray-400">
-            Sobre nós
-          </h2>
-          <p className="text-sm">{barbershop.description}</p>
-        </div>
+      {/* DESCRIÇÃO */}
+      <div className="space-y-2 border-b border-solid p-5">
+        <h2 className="text-xs font-bold uppercase text-gray-400">Sobre nós</h2>
+        <p className="text-justify text-sm">{barbershop?.description}</p>
       </div>
 
+      {/* SERVIÇOS */}
       <div className="space-y-3 border-b border-solid p-5">
-        <h2 className="mb-3 text-xs font-bold uppercase text-gray-400">
-          Serviços
-        </h2>
+        <h2 className="text-xs font-bold uppercase text-gray-400">Serviços</h2>
         <div className="space-y-3">
           {barbershop.services.map((service) => (
             <ServiceItem
               key={service.id}
-              barbershop={barbershop}
-              service={service}
+              barbershop={JSON.parse(JSON.stringify(barbershop))}
+              service={JSON.parse(JSON.stringify(service))}
             />
           ))}
         </div>
       </div>
 
+      {/* CONTATO */}
       <div className="space-y-3 p-5">
-        {barbershop.phones.map((phone) => (
-          <PhoneItem key={phone} phone={phone} />
+        {barbershop.phones.map((phone, index) => (
+          <PhoneItem key={index} phone={phone} />
         ))}
       </div>
     </div>
