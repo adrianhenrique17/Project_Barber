@@ -1,42 +1,18 @@
 "use client"
 
 import { Button } from "./ui/button"
-import {
-  MenuIcon,
-  HomeIcon,
-  CalendarIcon,
-  LogOutIcon,
-  LogInIcon,
-} from "lucide-react"
-import {
-  Sheet,
-  SheetTrigger,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetClose,
-} from "./ui/sheet"
-import { quickSearchOptions } from "../_constants/search.ts"
-import { Avatar, AvatarImage } from "./ui/avatar.tsx"
+import { HomeIcon, CalendarIcon, LogOutIcon, LogInIcon } from "lucide-react"
+import { SheetContent, SheetHeader, SheetTitle, SheetClose } from "./ui/sheet"
+import { quickSearchOptions } from "../_constants/search"
+import { Avatar, AvatarImage } from "./ui/avatar"
 import Link from "next/link"
 import Image from "next/image"
-import {
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogHeader,
-  DialogDescription,
-  DialogTitle,
-} from "./ui/dialog.tsx"
-import image from "next/image"
-import { signIn, useSession, signOut } from "next-auth/react"
-import link from "next/link"
-import SignInDialog from "./sign-in-dialog.tsx"
-import bookings from "../bookings/page.tsx"
+import { Dialog, DialogTrigger, DialogContent } from "./ui/dialog"
+import { useSession, signOut } from "next-auth/react"
+import SignInDialog from "./sign-in-dialog"
 
 const SidebarSheet = () => {
   const { data } = useSession()
-  const handleLoginWithGoogleClick = () => signIn("google")
   const handleLogOutClick = () => signOut()
 
   return (
@@ -59,7 +35,7 @@ const SidebarSheet = () => {
           </div>
         ) : (
           <>
-            <h2 className="font-bold">Olá, faça seu login </h2>
+            <h2 className="font-bold">Olá, faça seu login</h2>
             <Dialog>
               <DialogTrigger asChild>
                 <Button size="icon">
@@ -79,7 +55,7 @@ const SidebarSheet = () => {
           <Button className="justify-start gap-2" variant="ghost" asChild>
             <Link href="/">
               <HomeIcon size={18} />
-              Inicio
+              Início
             </Link>
           </Button>
         </SheetClose>

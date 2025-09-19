@@ -1,19 +1,10 @@
 import { Card, CardContent } from "./ui/card"
 import Image from "next/image"
 import { Button } from "./ui/button"
-import { MenuIcon, HomeIcon, CalendarIcon, LogOutIcon } from "lucide-react"
-import {
-  Sheet,
-  SheetTrigger,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetClose,
-} from "./ui/sheet"
-import { quickSearchOptions } from "../_constants/search.ts"
-import { Avatar, AvatarImage } from "./ui/avatar.tsx"
+import { MenuIcon } from "lucide-react" // só usa o MenuIcon
+import { Sheet, SheetTrigger } from "./ui/sheet" // só usa esses
 import Link from "next/link"
-import SidebarSheet from "./sidebar-sheet.tsx"
+import SidebarSheet from "./sidebar-sheet"
 
 const Header = () => {
   return (

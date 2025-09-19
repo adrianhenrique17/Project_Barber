@@ -1,10 +1,12 @@
+// File: app/barbershops/page.tsx
+
 import BarbershopItem from "../_components/barbershop-item"
 import Header from "../_components/header"
 import Search from "../_components/search"
 import { db } from "../_lib/prisma"
 
 interface BarbershopsPageProps {
-  searchParams: {
+  searchParams?: {
     title?: string
     service?: string
   }
@@ -17,12 +19,12 @@ const BarbershopsPage = async ({ searchParams }: BarbershopsPageProps) => {
         searchParams?.title
           ? {
               name: {
-                contains: searchParams?.title,
+                contains: searchParams.title,
                 mode: "insensitive",
               },
             }
           : {},
-        searchParams.service
+        searchParams?.service
           ? {
               services: {
                 some: {
