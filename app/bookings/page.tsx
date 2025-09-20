@@ -1,69 +1,57 @@
-// app/barbershops/page.tsx
-import BarbershopItem from "../_components/barbershop-item"
+import { getServerSession } from "next-auth"
 import Header from "../_components/header"
-import Search from "../_components/search"
-import { db } from "../_lib/prisma"
+import { authOptions } from "../_lib/auth"
+import { notFound } from "next/navigation"
+import BookingItem from "../_components/booking-item"
+import { getConfirmedBookings } from "../_data/get-confirmed-bookings"
+import { getConcludedBookings } from "../_data/get-concluded-bookings"
 
-// tipagem correta para App Router
-interface BarbershopsPageProps {
-  searchParams?: {
-    title?: string
-    service?: string
+const Bookings = async () => {
+  const session = await getServerSession(authOptions)
+  if (!session?.user) {
+    // TODO: mostrar pop-up de login
+    return notFound()
   }
-}
-
-const BarbershopsPage = async ({ searchParams }: BarbershopsPageProps) => {
-  const barbershops = await db.barbershop.findMany({
-    where: {
-      OR: [
-        searchParams?.title
-          ? {
-              name: {
-                contains: searchParams.title,
-                mode: "insensitive",
-              },
-            }
-          : {},
-        searchParams?.service
-          ? {
-              services: {
-                some: {
-                  name: {
-                    contains: searchParams.service,
-                    mode: "insensitive",
-                  },
-                },
-              },
-            }
-          : {},
-      ],
-    },
-    include: {
-      services: true, // garante que vem os serviços (se precisar no componente)
-    },
-  })
+  const confirmedBookings = await getConfirmedBookings()
+  const concludedBookings = await getConcludedBookings()
 
   return (
-    <div>
+    <>
       <Header />
-      <div className="my-6 px-5">
-        <Search />
-      </div>
-      <div className="px-5">
-        {(searchParams?.title || searchParams?.service) && (
-          <h2 className="mb-3 mt-6 text-xs font-bold uppercase text-gray-400">
-            Resultados para &quot;{searchParams?.title || searchParams?.service}
-            &quot;
-          </h2>
+      <div className="space-y-3 p-5">
+        <h1 className="text-xl font-bold">Agendamentos</h1>
+        {confirmedBookings.length === 0 && concludedBookings.length === 0 && (
+          <p className="text-gray-400">Você não tem agendamentos.</p>
         )}
-        <div className="grid grid-cols-2 gap-4">
-          {barbershops.map((barbershop) => (
-            <BarbershopItem key={barbershop.id} barbershop={barbershop} />
-          ))}
-        </div>
+        {confirmedBookings.length > 0 && (
+          <>
+            <h2 className="mb-3 mt-6 text-xs font-bold uppercase text-gray-400">
+              Confirmados
+            </h2>
+            {confirmedBookings.map((booking) => (
+              <BookingItem
+                key={booking.id}
+                booking={JSON.parse(JSON.stringify(booking))}
+              />
+            ))}
+          </>
+        )}
+        {concludedBookings.length > 0 && (
+          <>
+            <h2 className="mb-3 mt-6 text-xs font-bold uppercase text-gray-400">
+              Finalizados
+            </h2>
+            {concludedBookings.map((booking) => (
+              <BookingItem
+                key={booking.id}
+                booking={JSON.parse(JSON.stringify(booking))}
+              />
+            ))}
+          </>
+        )}
       </div>
-    </div>
+    </>
   )
 }
 
-export default BarbershopsPage
+export default Bookings
